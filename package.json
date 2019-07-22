@@ -26,6 +26,7 @@
     "@types/webpack-node-externals": "^1.6.3",
     "serverless": "^1.48.2",
     "serverless-webpack": "^5.3.1",
+    "source-map-loader": "^0.2.4",
     "typescript": "^3.5.3",
     "webpack": "^4.36.1",
     "webpack-node": "^0.0.0",

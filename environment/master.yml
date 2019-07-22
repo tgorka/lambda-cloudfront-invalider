@@ -1,0 +1,6 @@
+NODE_ENV: 'production'
+DEBUG: 'cloudfrontinvalider-*,jslambda-*'
+REGION: 'eu-west-1'
+BRANCH: 'master'
+ID_LEN: '12'
+ID_ALPHABET: 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
