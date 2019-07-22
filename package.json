@@ -1,0 +1,25 @@
+{
+  "name": "lambda-cloudfront-invalider",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/tgorka/lambda-cloudfront-invalider.git",
+  "author": "tgorka <tomasz@gorka.org.pl>",
+  "license": "MIT",
+  "scripts": {
+    "test": "env-cmd ./environment/ci.env jest",
+    "tsc": "tsc -p tsconfig.json",
+    "deploy": "yarn tsc && serverless deploy --verbose --conceal"
+  },
+  "dependencies": {
+    "debug": "^4.1.0",
+    "jslambda-handler": "^0.0.10",
+    "source-map-support": "^0.5.9"
+  },
+  "devDependencies": {
+    "@types/debug": "^0.0.31",
+    "@types/source-map-support": "^0.4.1",
+    "env-cmd": "^8.0.2",
+    "typescript": "^3.1.6",
+    "yarn": "^1.12.3"
+  }
+}
