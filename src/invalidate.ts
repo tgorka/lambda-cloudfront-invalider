@@ -1,6 +1,6 @@
 import * as _debug from "debug";
 import * as AWS from "aws-sdk";
-import * as nanoid from "nanoid/async/generate";
+const nanoid = require("nanoid/async/generate");
 
 
 const info = _debug("cloudfrontinvalider-info-handler");
