@@ -6,13 +6,21 @@ const info = _debug("cloudfrontinvalider-info-handler");
 const debug = _debug("cloudfrontinvalider-debug-handler");
 const error = _debug("cloudfrontinvalider-error-handler");
 
-export default async (id: string, path?: string, invalidationId?: string): Promise<any> => {
+/**
+ * Invalidate CloudFront distribution cache.
+ * @param id of the distribution
+ * @param path fo invalidate. By default it /*
+ * @param invalidationIdPrefix prefix of the invalidation reference. By default it is empty
+ * @param invalidationIdPostfix postix of the invalidation reference. By default is is random value
+ */
+export default async (id: string, path?: string, invalidationIdPrefix?: string, invalidationIdPostfix?: string): Promise<any> => {
     path = path || "/*";
-    invalidationId = invalidationId || "STRING_VALUE";
+    invalidationIdPrefix = invalidationIdPrefix || "STRING_VALUE";
+    invalidationIdPostfix = invalidationIdPostfix || "STRING_VALUE";
     const parameters = {
         DistributionId: id, /* required */
         InvalidationBatch: { /* required */
-            CallerReference: invalidationId, /* required */
+            CallerReference: `${invalidationIdPrefix}${invalidationIdPostfix}`, /* required */
             Paths: { /* required */
                 Quantity: 1, /* required */
                 Items: [
