@@ -1,0 +1,106 @@
+service:
+  name: cloudfront-invalider # name of the service
+  publish: false
+
+#  ╔═╗╦  ╦ ╦╔═╗╦╔╗╔╔═╗
+#  ╠═╝║  ║ ║║ ╦║║║║╚═╗
+#  ╩  ╩═╝╚═╝╚═╝╩╝╚╝╚═╝
+
+plugins: #${file(./serverless/plugins.yml)}
+- serverless-webpack
+- serverless-pseudo-parameters
+
+#  ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗
+#  ║  ║ ║╚═╗ ║ ║ ║║║║
+#  ╚═╝╚═╝╚═╝ ╩ ╚═╝╩ ╩
+
+custom: #${file(./serverless/custom.yml)}
+  envStage: ${env:BRANCH, 'master'}
+  stage: ${opt:stage, self:custom.envStage}
+  envConfiguration: ${env:CONFIGURATION, self:custom.stage}
+  configuration: ${opt:configuration, self:custom.envConfiguration}
+  environment: ${file(./environment/${self:custom.stage}.yml)} # default env variables from the files per stage
+  accountId: "#{AWS::AccountId}" # replace this with your AWS accountId
+  webpack:
+    webpackConfig: "webpack.config.ts"   # Name of webpack configuration file
+    includeModules: true   # Node modules configuration for packaging
+    packager: "yarn"   # Packager that will be used to package your external modules
+
+#  ╔═╗╦═╗╔═╗╦  ╦╦╔╦╗╔═╗╦═╗
+#  ╠═╝╠╦╝║ ║╚╗╔╝║ ║║║╣ ╠╦╝
+#  ╩  ╩╚═╚═╝ ╚╝ ╩═╩╝╚═╝╩╚═
+
+provider: #${file(./serverless/provider.yml)}
+  name: "aws" # name of the cloud infrastructure provider
+  runtime: ${opt:runtime, 'nodejs10.x'} # default runtime of the functions - use the newest available
+  stage: ${self:custom.stage} # Set the default stage used. Default is dev
+  region: ${opt:region, 'eu-west-1'} # Overwrite the default region used. Default is us-east-1
+  memorySize: 128 # Overwrite the default memory size. Default is 1024
+  timeout: 60 # The default is 6 seconds. Note: API Gateway current maximum is 30 seconds
+  logRetentionInDays: 30 # Set the default RetentionInDays for a CloudWatch LogGroup
+  versionFunctions: false # Optional function version
+  role: "arn:aws:iam::${self:custom.accountId}:role/cloudfrontInvaliderRole-${self:custom.stage}"
+  environment: ${file(./environment/${self:custom.configuration}.yml)} # default env variables from the files per stage
+  deploymentBucket: "io.carmoov.deploy.${self:custom.configuration}" # bucket where the actual deployment steps will be stored
+
+#  ╔═╗╔═╗╔═╗╦╔═╔═╗╔═╗╔═╗
+#  ╠═╝╠═╣║  ╠╩╗╠═╣║ ╦║╣
+#  ╩  ╩ ╩╚═╝╩ ╩╩ ╩╚═╝╚═╝
+
+package: #${file(./serverless/package.yml):package}
+  individually: false
+  include: # Specify the directories and files which should be included in the deployment package
+  - src/**
+  - index.ts
+  - package.json
+  exclude: # Specify the directories and files which should be excluded in the deployment package
+  - .git/**
+  - .idea/**
+  excludeDevDependencies: true # Config if Serverless should automatically exclude dev dependencies in the deployment package. Defaults to true
+
+#  ╔═╗╦ ╦╔╗╔╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
+#  ╠╣ ║ ║║║║║   ║ ║║ ║║║║╚═╗
+#  ╚  ╚═╝╝╚╝╚═╝ ╩ ╩╚═╝╝╚╝╚═╝
+
+functions: #${file(./serverless/functions.yml)}
+  invalidate:
+    handler: index.invalidate
+
+#  ╦═╗╔═╗╔═╗╔═╗╦ ╦╦═╗╔═╗╔═╗╔═╗
+#  ╠╦╝║╣ ╚═╗║ ║║ ║╠╦╝║  ║╣ ╚═╗
+#  ╩╚═╚═╝╚═╝╚═╝╚═╝╩╚═╚═╝╚═╝╚═╝
+
+resources:
+  Description: 'CloudFormation configuration file of the service for the branch: ${self:custom.stage}'
+  Resources: #${file(./serverless/resources.yml)}
+    cloudfrontInvaliderRole: #${file(./serverless/resources/cloudfrontInvaliderLambdaRole.yml)}
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "cloudfrontInvaliderRole-${self:custom.stage}"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+              - "lambda.amazonaws.com"
+            Action:
+            - "sts:AssumeRole"
+        Policies:
+        - PolicyName: "cloudfrontInvaliderPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: "Allow"
+              Action:
+              - "cloudfront:CreateInvalidation"
+              Resource:
+              - "arn:aws:cloudfront::#{AWS::AccountId}:distribution/*"
+            - Effect: "Allow"
+              Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+              - "logs:DescribeLogStreams"
+              Resource:
+              - "arn:aws:logs:*:*:*"

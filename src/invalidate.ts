@@ -26,10 +26,11 @@ export default async (id: string, path?: string, invalidationIdPrefix?: string, 
     path = path || "/*";
     invalidationIdPrefix = invalidationIdPrefix || "";
     invalidationIdPostfix = invalidationIdPostfix || await nanoid(RANDOM_ALPHABET, RANDOM_LEN);
+    const invalidationId = `${invalidationIdPrefix}${invalidationIdPostfix}`;
     const parameters = {
         DistributionId: id, /* required */
         InvalidationBatch: { /* required */
-            CallerReference: `${invalidationIdPrefix}${invalidationIdPostfix}`, /* required */
+            CallerReference: invalidationId, /* required */
             Paths: { /* required */
                 Quantity: 1, /* required */
                 Items: [
@@ -40,7 +41,7 @@ export default async (id: string, path?: string, invalidationIdPrefix?: string, 
     };
     const response = await new AWS.CloudFront({apiVersion: '2019-03-26'}).createInvalidation(parameters).promise();
 
-    info(`cloudfront[${id}] created invalidation for:${path}.`);
+    info(`cloudfront[${id}] created invalidation for:${path} with id: ${invalidationId}.`);
     debug(`Invalidation response:${JSON.stringify(response)}`);
     return response;
 };

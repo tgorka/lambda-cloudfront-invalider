@@ -2,4 +2,5 @@
 node_modules
 /**/*.js
 /**/*.map
-serverless.yml
+.serverless
+.build
