@@ -15,8 +15,7 @@
     "outDir": ".build",
     "moduleResolution": "node",
     "types": [
-      "node",
-      "jest"
+      "node"
     ],
     "lib": [
       "es2018",

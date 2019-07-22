@@ -10,16 +10,24 @@
     "deploy": "yarn tsc && serverless deploy --verbose --conceal"
   },
   "dependencies": {
+    "aws-sdk": "^2.496.0",
     "debug": "^4.1.1",
     "jslambda-handler": "^0.0.10",
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/debug": "^4.1.4",
+    "@types/node": "^12.6.8",
     "@types/source-map-support": "^0.5.0",
+    "@types/webpack": "^4.32.0",
+    "@types/webpack-node-externals": "^1.6.3",
     "serverless": "^1.48.2",
     "serverless-webpack": "^5.3.1",
     "typescript": "^3.5.3",
+    "webpack": "^4.36.1",
+    "webpack-node": "^0.0.0",
+    "webpack-node-externals": "^1.7.2",
     "yarn": "^1.17.3"
   }
 }
