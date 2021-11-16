@@ -10,7 +10,7 @@
     "deploy": "yarn tsc && serverless deploy --verbose --conceal"
   },
   "dependencies": {
-    "aws-sdk": "^2.496.0",
+    "aws-sdk": "^2.814.0",
     "debug": "^4.1.1",
     "jslambda-handler": "^0.0.10",
     "nanoid": "^2.0.3",
